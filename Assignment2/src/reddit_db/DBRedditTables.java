@@ -26,70 +26,103 @@ public class DBRedditTables {
 	}
 
 	public void createTables() {
-		try {
-			st = con.createStatement();
-			query = "CREATE TABLE IF NOT EXISTS " + COMMENT_TABLE+
-					" (id TEXT," +
-					"parent_id TEXT," +
-					"link_id TEXT, " +
-					"name TEXT," +
-					"autor TEXT," +
-					"body TEXT," +
-					"subreddit_id TEXT," +
-					"subreddit TEXT," +
-					"score INT," +
-					"create_utc INT)";
-			st.executeUpdate(query);
-			st.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+	try {
+		st = con.createStatement();
+	            query = "CREATE TABLE IF NOT EXISTS " + USER_TABLE +
+	                    " (author varchar(20) PRIMARY KEY)";
 
-	public void importData(File file) {
-		try {
-			System.out.println("Importing data to " + TABLE_NAME + "...");
-			Long startTime = System.nanoTime();
-			System.out.println("Importing data..");
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-			con.setAutoCommit(false);
-			pSt = con.prepareStatement
-					("INSERT INTO " + TABLE_NAME + " VALUES(?,?,?,?,?,?,?,?,?,?)");
-			int lCount = 0;
-           	BufferedReader br = new BufferedReader(new FileReader(file));
-           	String line = br.readLine();
-           	while (line != null) {
-           		TableColumns obj = mapper.readValue(line, TableColumns.class);
-           		pSt.setString(1, obj.id);
-           		pSt.setString(2, obj.parent_id);
-           		pSt.setString(3, obj.link_id);
-           		pSt.setString(4, obj.name);
-           		pSt.setString(5, obj.author);
-           		pSt.setString(6, obj.body);
-           		pSt.setString(7, obj.subreddit_id);
-           		pSt.setString(8, obj.subreddit);
-           		pSt.setInt(9, obj.score);
-           		pSt.setInt(10, obj.created_utc);
-           		pSt.executeUpdate();
-           		lCount++;
-           		line = br.readLine();//Next line
-           	}
-           	br.close();
-           	con.commit();
-           	long time = (System.nanoTime() - startTime) / 1000000000;
-           	System.out.println("Done inserting " + l + " objects. Time: " + time);
-		} catch(SQLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	            st.executeUpdate(query);
+	            st.close();
+
+	            st = con.createStatement();
+	            query = "CREATE TABLE IF NOT EXISTS " + REDDIT_TABLE +
+	                    " (subreddit_id varchar(10) PRIMARY KEY AUTO_INCREMENT," +
+	                    "subreddit varchar(10) NOT NULL UNIQUE)";
+	            st.executeUpdate(query);
+	            st.close();
+	            
+	            st = con.createStatement();
+	            query = "CREATE TABLE IF NOT EXISTS " + COMMENT_TABLE +
+	                    " (id varchar(10) PRIMARY KEY AUTO_INCREMENT," +
+	                    "parent_id varchar(10) NOT NULL ," +
+	                    "link_id varchar(255) NOT NULL , " +
+	                    "name varchar(255) NOT NULL ," +
+	                    "author varchar(20) NOT NULL ," +
+	                    "body varchar(255) NOT NULL ," +
+	                    "subreddit_id varchar(10) NOT NULL ," +
+	                    "subreddit varchar(10) NOT NULL ,"+
+	                    "score INT(10) NOT NULL ," +
+	                    "create_utc INT(10) NOT NULL , " +
+	                    "FOREIGN KEY (author) REFERENCES " + USER_TABLE + "(author) ON DELETE CASCADE," +
+	                    "FOREIGN KEY (subreddit_id) REFERENCES " + REDDIT_TABLE + "(subreddit_id) ON DELETE CASCADE," +
+	                    "FOREIGN KEY (subreddit) REFERENCES " + REDDIT_TABLE + "(subreddit) ON DELETE CASCADE)";
+	            st.executeUpdate(query);
+	            st.close();
+
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+
+	    public void importData(File file) {
+	        Long startime = System.nanoTime();
+
+	        ObjectMapper mapper = new ObjectMapper();
+	        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+	        try {
+	            con.setAutoCommit(false);
+
+	            PreparedStatement userStatement = con.prepareStatement
+	                    ("INSERT OR IGNORE INTO " + USER_TABLE + " VALUES(?)");
+	            PreparedStatement commentStatement = con.prepareStatement
+	                    ("INSERT OR IGNORE INTO " + COMMENT_TABLE + " VALUES(?,?,?,?,?,?,?,?,?,?)");
+	            PreparedStatement subredditStatement = con.prepareStatement
+	                    ("INSERT OR IGNORE INTO" + REDDIT_TABLE + " VALUES(?,?)");
+
+
+	            int lCount = 0;
+	            BufferedReader br= new BufferedReader(new FileReader(file));
+	            String line = br.readLine();
+	            while (line != null) {
+	                TableColumns obj = mapper.readValue(line, TableColumns.class);
+	                userStatement.setString(1, obj.author);
+
+	                commentStatement.setString(1, obj.id);
+	                commentStatement.setString(2, obj.parent_id);
+	                commentStatement.setString(3, obj.link_id);
+	                commentStatement.setString(4, obj.name);
+	                commentStatement.setString(5, obj.author);
+	                commentStatement.setString(6, obj.body);
+	                commentStatement.setString(7, obj.subreddit_id);
+	                commentStatement.setString(8, obj.subreddit);
+	                commentStatement.setInt(9, obj.score);
+	                commentStatement.setInt(10, obj.created_utc);
+
+	                subredditStatement.setString(1, obj.subreddit_id);
+	                subredditStatement.setString(2, obj.subreddit);
+					
+	                userStatement.executeUpdate();
+	                subredditStatement.executeUpdate();
+	                commentStatement.executeUpdate();
+	                lCount++;
+	                line = br.readLine();
+	            }
+
+	            con.commit();
+	            con.setAutoCommit(true);
+	            System.out.println(lCount + " items inserted, time: " + (System.nanoTime() - startime) / 1000000 + "ms");
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
 	}
 	   
 	public void clearTables() {
 		try {
 			st = con.createStatement();
-			query = "DROP TABLE IF EXISTS " + TABLE_NAME;
+			query = "DROP TABLE IF EXISTS " + USER_TABLE + COMMENT_TABLE + REDDIT_TABLE ;
 			st.execute(query);
 		}catch(SQLException e) {
 			e.printStackTrace();

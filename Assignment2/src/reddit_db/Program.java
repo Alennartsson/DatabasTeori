@@ -19,7 +19,6 @@ public class Program{
         String password = "1234";
 
         try {
-            
             con = DriverManager.getConnection(url, user, password);
             st = con.createStatement();
             
@@ -29,9 +28,16 @@ public class Program{
             
             DBReddit db = new DBReddit(con);
 
-            db.createTables();
-            db.importData(file);
-            db.dropTable();
+           // db.createTables();
+           //db.importData(file);
+           //db.dropTable();
+            
+            
+           DBRedditTables dbT = new DBRedditTables (con);
+           
+           dbT.createTables();
+           dbT.importData(file);
+            
             
         } catch (SQLException ex) {
         

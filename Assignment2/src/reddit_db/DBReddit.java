@@ -26,7 +26,7 @@ public class DBReddit {
        try {
            st = con.createStatement();
            query = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME+
-                   " (id TEXT," +
+                   " (id TEXT not," +
                    "parent_id TEXT," +
                    "link_id TEXT, " +
                    "name TEXT," +
@@ -93,5 +93,4 @@ public class DBReddit {
            e.printStackTrace();
        }
    }
-
 }
