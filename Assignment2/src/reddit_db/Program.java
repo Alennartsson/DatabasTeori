@@ -23,40 +23,36 @@ public class Program{
             st = con.createStatement();
             
             System.out.println("Connected to database..");
-            File file = new File("C://Users//H//JavaLNU//2DV513//src//resources//RC_2007-10");
-            
+            File file = new File("");
             
             DBReddit db = new DBReddit(con);
 
-           // db.createTables();
-           //db.importData(file);
-           //db.dropTable();
+            //db.createTables();
+            //db.importFile(file);
+            //db.dropTable();
             
             
-           DBRedditTables dbT = new DBRedditTables (con);
+            DBRedditTables dbT = new DBRedditTables (con);
            
-           dbT.createTables();
-           dbT.importData(file);
-            
+            dbT.createTables();
+            dbT.importData(file);
+            //dbT.dropTables(); 
             
         } catch (SQLException ex) {
-        
-      
         } finally {
+        try {
             
-            try {
+            if (rs != null) {
+                rs.close();
+            }
                 
-                if (rs != null) {
-                    rs.close();
-                }
+            if (st != null) {
+                st.close();
+            }
                 
-                if (st != null) {
-                    st.close();
-                }
-                
-                if (con != null) {
-                    con.close();
-                }
+            if (con != null) {
+                con.close();
+            }
 
             } catch (SQLException ex) {
                 
