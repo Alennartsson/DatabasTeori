@@ -98,7 +98,7 @@ public class DBRedditTables {
 	            con.commit();
 	            con.setAutoCommit(true);
 	            time = (System.nanoTime() - startTime) / 1000000000;
-	            System.out.println("Done " + lCount + " objects. Time: " + time);
+	            System.out.println( lCount + " objects. Time: " + time);
 	        } catch (SQLException e) {
 	            e.printStackTrace();
 	        } catch (IOException e) {
