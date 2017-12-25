@@ -1,4 +1,4 @@
-package assignment3;
+package carRental;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,7 +22,9 @@ public class Program{
             
             System.out.println("Connected to database..");
             
+            CarRental rental = new CarRental(con);
             
+            rental.createTables();
             
             
             
