@@ -70,7 +70,7 @@ public class DBReddit {
            br.close();
            con.commit();
            time = (System.nanoTime() - startTime) / 1000000000;
-           System.out.println("Done " + lCount + " objects. Time: " + time);
+           System.out.println(lCount + " objects. Time: " + time);
        } catch(SQLException e) {
            e.printStackTrace();
        } catch (IOException e) {
