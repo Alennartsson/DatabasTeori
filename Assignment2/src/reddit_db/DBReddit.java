@@ -9,28 +9,26 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DBReddit {
-
-   private String TABLE_NAME = "COMMENTS";
    private Connection con;
    private Statement st;
    private String query;
    private PreparedStatement pSt;
    private long startTime;
    private long time;
+   private ObjectMapper map = new ObjectMapper();
    
    public DBReddit(Connection con) {
        this.con = con;
    }
-
    public void createTables() {
        try {
            st = con.createStatement();
-           query = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME+
-                   " (id TEXT not," +
+           query = "CREATE TABLE IF NOT EXISTS COMMENT" +
+                   " (id TEXT ," +
                    "parent_id TEXT," +
                    "link_id TEXT, " +
                    "name TEXT," +
-                   "autor TEXT," +
+                   "author TEXT," +
                    "body TEXT," +
                    "subreddit_id TEXT," +
                    "subreddit TEXT," +
@@ -43,22 +41,18 @@ public class DBReddit {
        }
    }
 
-   public void importData(File file) {
+   public void importFile(File file) {
        try {
-           System.out.println("Importing data to " + TABLE_NAME + "...");
+           System.out.println("Importing data...");
            startTime = System.nanoTime();
-           System.out.println("Importing data..");
-           ObjectMapper mapper = new ObjectMapper();
-           mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-           con.setAutoCommit(false);
+           map.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
            pSt = con.prepareStatement
-                   ("INSERT INTO " + TABLE_NAME + " VALUES(?,?,?,?,?,?,?,?,?,?)");
+                   ("INSERT INTO COMMENT VALUES(?,?,?,?,?,?,?,?,?,?)");
            int lCount = 0;
            BufferedReader br = new BufferedReader(new FileReader(file));
            String line = br.readLine();
            while (line != null) {
-               TableColumns obj = mapper.readValue(line, TableColumns.class);
+               TableColumns obj = map.readValue(line, TableColumns.class);
                pSt.setString(1, obj.id);
                pSt.setString(2, obj.parent_id);
                pSt.setString(3, obj.link_id);
@@ -71,12 +65,12 @@ public class DBReddit {
                pSt.setInt(10, obj.created_utc);
                pSt.executeUpdate();
                lCount++;
-               line = br.readLine();//Next line
+               line = br.readLine();
            }
            br.close();
            con.commit();
            time = (System.nanoTime() - startTime) / 1000000000;
-           System.out.println("Done inserting " + lCount + " objects. Time: " + time);
+           System.out.println("Done " + lCount + " objects. Time: " + time);
        } catch(SQLException e) {
            e.printStackTrace();
        } catch (IOException e) {
@@ -87,7 +81,7 @@ public class DBReddit {
    public void dropTable() {
        try {
            st = con.createStatement();
-           query = "DROP TABLE IF EXISTS " + TABLE_NAME;
+           query = "DROP TABLE IF EXISTS COMMENT";
            st.execute(query);
        }catch(SQLException e) {
            e.printStackTrace();
