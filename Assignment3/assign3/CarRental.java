@@ -35,7 +35,7 @@ public class CarRental {
 			         "production_year int(10) NOT NULL,"+
 			         "colour varchar(125) NOT NULL," +
 			         "mileage int(50) NOT NULL)";
-			         
+		 st.executeUpdate(query);
 			query = "CREATE TABLE IF NOT EXISTS SERVICE" +
 	          		" (service_stamp_number INT(10) PRIMARY KEY, "+
 					"licence_plate varchar(10) NOT NULL, " +
