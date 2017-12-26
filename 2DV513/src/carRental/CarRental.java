@@ -87,8 +87,6 @@ public class CarRental {
 	}
 	
 	 public void getCustomerName(String user) throws SQLException {
-	        System.out.println("q1 - Amount of comments for user \"" + user + "\"");
-	        rs = con.createStatement().executeQuery("SELECT COUNT(*) AS count FROM " + COMMENT_TABLE + " WHERE author='" + user + "'");
-	        System.out.println(rs.getInt("count"));
+	
 	}
 }
