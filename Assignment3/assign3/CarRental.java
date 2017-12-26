@@ -73,4 +73,14 @@ public class CarRental {
 			e.printStackTrace();
 		}
 	} 	
+	
+	public void dropTables() {
+		try {
+			st = con.createStatement();
+			query = "DROP TABLE IF EXISTS PRICE, SERVICE, CUSTOMER, CAR";
+			st.execute(query);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
