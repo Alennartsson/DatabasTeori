@@ -19,6 +19,7 @@ public class Console {
 
     public void startPage() throws IOException {
         Scanner scanner = new Scanner(System.in);
+
         System.out.println("|=============== Start page ================|");
         System.out.println("| Select a number to get to the             |");
         System.out.println("| corresponding page.                       |");
