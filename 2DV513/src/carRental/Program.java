@@ -1,5 +1,6 @@
 package carRental;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -7,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Program{
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Connection con = null;
         Statement st = null;
         ResultSet rs = null;
@@ -52,5 +53,7 @@ public class Program{
                 
             }
         }
+        Console console = new Console();
+        console.startPage();
     }
 }
