@@ -1,12 +1,15 @@
 package carRental;
 
+import carRental.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CarRental {
 	   private Connection con;
@@ -14,6 +17,9 @@ public class CarRental {
 	   private ResultSet rs;
 	   private String query;
 	   private PreparedStatement pSt;
+	   private List<List<String>> result = new ArrayList<>(); 
+	   private ResultSetMetaData metadata;
+	   private Car car;
 
 	
 	public CarRental(Connection con) {
@@ -86,7 +92,176 @@ public class CarRental {
 		}
 	}
 	
-	 public void getCustomerName(String user) throws SQLException {
+	//Inte fixat
+	@SuppressWarnings("rawtypes")
+	public List licencePlateCheck(Connection con) throws SQLException {
+		query = "SELECT * FROM comments.car";
+		pSt= con.prepareStatement(query);
+		rs = pSt.executeQuery();
+
+		metadata = rs.getMetaData();
+		int numcols = metadata.getColumnCount();
+		while (rs.next()) {
+		    List<String> row = new ArrayList<>(numcols);
+		    int i = 1;
+		    while (i <= numcols) {
+		        row.add(rs.getString(i++));
+		    }
+		    result.add(row); // add it to the result
+			}	
+		rs.close();
+		pSt.close();
+		return result;
+	}
 	
+	@SuppressWarnings("rawtypes")
+	public List showCustomerInfo(Connection con, String name) throws SQLException {
+		query = "SELECT * FROM comments.customer WHERE customer_name='" +name+"'";
+		pSt= con.prepareStatement(query);
+		rs = pSt.executeQuery(); 
+		
+		metadata = rs.getMetaData();
+		int numcols = metadata.getColumnCount();
+
+		while (rs.next()) {
+			  	List<String> row = new ArrayList<>(numcols);
+			    
+			    row.add(rs.getString(1));
+			    row.add(rs.getString(2));
+			    row.add(rs.getString(3));
+			    row.add(rs.getString(4));
+			    row.add(rs.getString(5));
+			    row.add(rs.getString(6));
+			    row.add(rs.getString(7));
+			    row.add(rs.getString(8));
+			    result.add(row);
+			}	
+		rs.close();
+		pSt.close();
+		return result;
+	}
+	
+	
+	
+	public void checkAndUpdateMileage() {
+		
+	}
+	
+	
+	//Funkar inte än, 
+	public void updateCustomer(Connection con, String licence_plate, String name, String pNumber, String end_date) throws SQLException {
+		query = "SELECT* FROM comments.customer";
+		st = con.createStatement();
+		
+		rs =st.executeQuery(query);
+		
+		if(!rs.next()) {
+			pSt= con.prepareStatement("INSERT INTO comments.customer VALUES(?,?,?,?,?,?,?,?,?)");
+			
+			pSt.setString(1, "123415");
+			pSt.setString(2, licence_plate);
+			pSt.setString(3,  name);
+			pSt.setString(4, pNumber);
+			pSt.setString(5, "hej");
+			pSt.setString(6, "hej");
+			pSt.setString(7, "hej");
+			pSt.setString(8, end_date);
+			
+			pSt.executeUpdate();
+		System.out.println("Då");
+			
+		}
+		else {
+			pSt= con.prepareStatement("UPDATE comments.customer SET licence_plate=?, customer_name =?, customer_personal_number=?, rent_end_date=? WHERE customer_name ='" +name+"'");
+			
+			pSt.setString(1, licence_plate);
+			pSt.setString(2, name);
+			pSt.setString(3,  pNumber);
+			pSt.setString(8, end_date);
+			pSt.executeUpdate(); 
+		System.out.println("BÄÄÄ");
+			
+		}
+		rs.close();
+		pSt.close();
+	}
+	
+	public void updateCarRented() {
+		
+	}
+	
+	
+	
+	@SuppressWarnings("rawtypes")
+	public List showAllCars(Connection con) throws SQLException {
+		query = "SELECT * FROM comments.car";
+		pSt= con.prepareStatement(query);
+		rs = pSt.executeQuery();
+
+		metadata = rs.getMetaData();
+		int numcols = metadata.getColumnCount();
+		while (rs.next()) {
+		    List<String> row = new ArrayList<>(numcols);
+		    int i = 1;
+		    while (i <= numcols) {
+		        row.add(rs.getString(i++));
+		    }
+		    result.add(row); // add it to the result
+			}	
+		rs.close();
+		pSt.close();
+		return result;
+	}
+	
+
+	
+	// FUnkar inte än
+	@SuppressWarnings("rawtypes")
+	public List carRented(Connection con) throws SQLException {
+		query = "SELECT * FROM comments.car WHERE rented ='no'";
+		pSt= con.prepareStatement(query);
+		rs = pSt.executeQuery();
+
+		metadata = rs.getMetaData();
+		int numcols = metadata.getColumnCount();
+		while (rs.next()) {
+		    List<String> row = new ArrayList<>(numcols);
+		    int i = 1;
+		    while (i <= numcols) {
+		        row.add(rs.getString(i++));
+		    }
+		    result.add(row);
+			}	
+		rs.close();
+		pSt.close();
+		return result;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public List selectCarByLicence(Connection con,String licence) throws SQLException {
+		query = "SELECT * FROM comments.car WHERE licence_plate='" +licence+"'";
+		pSt= con.prepareStatement(query);
+		rs = pSt.executeQuery(); 
+		
+		metadata = rs.getMetaData();
+		int numcols = metadata.getColumnCount();
+
+		while (rs.next()) {
+			  	List<String> row = new ArrayList<>(numcols);
+			    
+			    row.add(rs.getString(1));
+			    row.add(rs.getString(2));
+			    row.add(rs.getString(3));
+			    row.add(rs.getString(4));
+			    row.add(rs.getString(5));
+			    row.add(rs.getString(6));
+			    row.add(rs.getString(7));
+			    row.add(rs.getString(8));
+			    row.add(rs.getString(9));
+			    result.add(row);
+			}	
+		rs.close();
+		pSt.close();
+		return result;
 	}
 }
