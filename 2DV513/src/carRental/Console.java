@@ -1,10 +1,13 @@
 package carRental;
 
 import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import carRental.CarRental;
 
 public class Console {
-
     private String input;
     private String name;
     private String pNumber;
@@ -16,8 +19,19 @@ public class Console {
     private String carSeats;
     private String carProcutionYear;
     private String carDamage;
+    private Connection con;
+    private ResultSet rs;
+    private Statement st;
+    private PreparedStatement pSt;
+    private CarRental rental = new CarRental(con);
+    
+    public Console (Connection con) {
+    	this.con = con;
+    	this.rental = new CarRental(con);
+    }
+    
 
-    public void startPage() throws IOException {
+    public void startPage() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("|=============== Start page ================|");
@@ -41,7 +55,8 @@ public class Console {
         }
     }
 
-    private void pageOne() throws IOException {
+    @SuppressWarnings("unchecked")
+	private void pageOne() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("|============== Customer menu ==============|");
         System.out.println("| Select a number to get to the             |");
@@ -78,24 +93,45 @@ public class Console {
                 }
                 System.out.print("Enter the licence number of the car you want to rent: ");
                 carLicenceNumber = scanner.nextLine();
-                /*
-                if(check if licenumber is correct and not rented);
-                show car information
-                */
+                
+               List<List<String>> result = new ArrayList<>(); 
+               result =  rental.selectCarByLicence(con, carLicenceNumber);
+               
+               if(!result.isEmpty()) {
+               for(int i = 0; i < result.size(); i ++) {
+            	   System.out.println(result.get(i).toString());
+               }
+               }else {
+            	   System.err.println("No such car, please try again.");
+                   pageSwitcher("1");
+               }
+
                 System.out.println("For how long do you want to rent the car?");
                 System.out.print("Enter the end date for your rental period (YYYYMMDD): ");
                 endDate = scanner.nextLine();
+                
+                // Räkna ut hur mycket detta skulle kosta
 
                 System.out.println("This will cost you .... + extra cost for mileage and damage");
                 System.out.println("Are you sure that you want to rent this car? ");
+                
+                for(int i = 0; i < result.size(); i ++) {
+             	   System.out.println(result.get(i).toString());
+                }
+                
                 //Visa något sorts kvitto på bilen och all information om personen
                 System.out.print("Enter Yes/No: ");
                 input = scanner.nextLine();
-                if (input.toLowerCase().equals("yes")) { // If input equals yes
-                    //Lägg till kod som skickar all info till databasen och sparar det
-                    //Lägg till kod som skickar all info till databasen och sparar det
-                    //Lägg till kod som skickar all info till databasen och sparar det
+                if (input.toLowerCase().equals("yes")) { 
+                	
+                //	rental.updateCustomer(con, carLicenceNumber, name, pNumber, endDate);
                     System.out.println("You are now renting the car");
+                    result = rental.showCustomerInfo(con, name);
+                    
+                    for(int i = 0; i < result.size(); i ++) {
+                  	   System.out.println(result.get(i).toString());
+                     }
+                    
 
                     startPage();
                 } else if (input.toLowerCase().equals("no")) { // If input equals no
@@ -114,9 +150,18 @@ public class Console {
             System.out.println("| Press Enter to return                     |");
             System.out.println("| 0. Return                                 |");
             System.out.println("|===========================================|");
-            //Lägg till kod som hämtar info från databasen och skriver ut någon sorts tabell med bilarna som finns lediga
-            //Lägg till kod som hämtar info från databasen och skriver ut någon sorts tabell med bilarna som finns lediga
-            //Lägg till kod som hämtar info från databasen och skriver ut någon sorts tabell med bilarna som finns lediga
+            
+            
+            List<List<String>> result = new ArrayList<>(); 
+            result =  rental.carRented(con);
+            
+            if(!result.isEmpty()) {
+            	for(int i = 0; i < result.size(); i ++) {
+         	  
+            		System.out.println(result.get(i).toString());
+            	}
+            }
+            
             scanner.nextLine();
             pageSwitcher("1");
 
@@ -162,7 +207,7 @@ public class Console {
 
     }
 
-    private void pageTwo() throws IOException {
+    private void pageTwo() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("|============== Manage company =============|");
         System.out.println("| Select a number to get to the             |");
@@ -349,7 +394,7 @@ public class Console {
 
     }
 
-    private void pageThree() throws IOException {
+    private void pageThree() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("|============ Load new registry ============|");
         System.out.println("| Press YES to load a new registry          |");
@@ -376,7 +421,7 @@ public class Console {
         }
     }
 
-    private void pageFour() throws IOException {
+    private void pageFour() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("|============ Save new registry ============|");
         System.out.println("| Press YES to save registry                |");
@@ -403,9 +448,7 @@ public class Console {
         }
     }
 
-
-
-    private void pageFive() throws IOException {
+    private void pageFive() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Are you sure that you want to exit? Yes/No");
         input = scanner.nextLine();
@@ -421,8 +464,7 @@ public class Console {
 
     }
 
-
-    private void pageSwitcher(String s) throws IOException {
+    private void pageSwitcher(String s) throws IOException, SQLException {
         switch (s) {
             case "1": // Add member
                 pageOne();
@@ -441,7 +483,4 @@ public class Console {
                 break;
         }
     }
-
-
-
 }
