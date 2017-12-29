@@ -19,7 +19,7 @@ public class CarRental {
 	   private PreparedStatement pSt;
 	   private List<List<String>> result = new ArrayList<>(); 
 	   private ResultSetMetaData metadata;
-	   private Car car;
+	//   private Car car;
 
 	
 	public CarRental(Connection con) {
@@ -156,7 +156,7 @@ public class CarRental {
 		rs =st.executeQuery(query);
 		
 		if(!rs.next()) {
-			pSt= con.prepareStatement("INSERT INTO comments.customer VALUES(?,?,?,?,?,?,?,?,?)");
+			pSt= con.prepareStatement("  INTO comments.customer VALUES(?,?,?,?,?,?,?,?,?)");
 			
 			pSt.setString(1, "123415");
 			pSt.setString(2, licence_plate);
@@ -207,7 +207,7 @@ public class CarRental {
 		        row.add(rs.getString(i++));
 		    }
 		    result.add(row); // add it to the result
-			}	
+			}
 		rs.close();
 		pSt.close();
 		return result;
@@ -263,5 +263,36 @@ public class CarRental {
 		rs.close();
 		pSt.close();
 		return result;
+	}
+
+	@SuppressWarnings("rawtypes") //Ligger på rad 302 i console. Inte kollat så mycket om den funkar helt 100.
+	public void registerNewCar(Connection con, String licence_plate, String price_car, String car_free, String model, String seats, String brand, String rented, String production_year, String color, String mileage) throws SQLException {
+		try {
+			Statement st = con.createStatement();
+
+
+			String query = " INSERT INTO car (licence_plate, seats, brand, production_year,mileage,price_car,car_free,model,rented, colour) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+			// create the mysql insert preparedstatement
+			PreparedStatement preparedStmt = con.prepareStatement(query);
+			preparedStmt.setString(1, licence_plate);
+			preparedStmt.setString(2, seats);
+			preparedStmt.setString(3, brand);
+			preparedStmt.setString(4, production_year);
+			preparedStmt.setString(5, mileage);
+			preparedStmt.setString(6, price_car);
+			preparedStmt.setString(7, car_free);
+			preparedStmt.setString(8, model);
+			preparedStmt.setString(9, rented);
+			preparedStmt.setString(10, color);
+			// execute the preparedstatement
+			preparedStmt.execute();
+			con.close();
+
+		} catch (Exception e) {
+			System.err.println("Got an exception!");
+			System.err.println(e.getMessage());
+		}
 	}
 }

@@ -7,8 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Program{
-    public static void main(String[] args) throws IOException {
+public class Program {
+    public static void main(String[] args) throws IOException, SQLException {
         Connection con = null;
         Statement st = null;
         ResultSet rs = null;
@@ -20,40 +20,41 @@ public class Program{
         try {
             con = DriverManager.getConnection(url, user, password);
             st = con.createStatement();
-            
+
             System.out.println("Connected to database..");
-            
+
             CarRental rental = new CarRental(con);
-            
+            Console console = new Console(con);
+
             rental.createTables();
             //rental.dropTables();
-            
-            
-            
+
+            console.startPage();
+
         } catch (SQLException ex) {
-        
-      
+
+
         } finally {
-            
+
             try {
-                
+
                 if (rs != null) {
                     rs.close();
                 }
-                
+
                 if (st != null) {
                     st.close();
                 }
-                
+
                 if (con != null) {
                     con.close();
                 }
 
             } catch (SQLException ex) {
-                
+
             }
+
         }
-        Console console = new Console();
-        console.startPage();
+
     }
-}
+    }

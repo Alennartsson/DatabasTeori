@@ -29,10 +29,11 @@ public class Console {
     	this.con = con;
     	this.rental = new CarRental(con);
     }
-    
 
     public void startPage() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
+
+        rental.showAllCars(con);
 
         System.out.println("|=============== Start page ================|");
         System.out.println("| Select a number to get to the             |");
@@ -298,7 +299,8 @@ public class Console {
                 input = scanner.nextLine();
 
                 if (input.toLowerCase().equals("yes")) { // If input equals yes
-                    //Skicka iväg all information till metoden som ska lägga till bilar
+                    rental.registerNewCar(con,carLicenceNumber,"200","not free","SuperDuperSuperCar",carSeats,carBrand,"0",carProcutionYear,carColor,mileage);
+                    //rental.showAllCars(con);
                     //Skicka iväg all information till metoden som ska lägga till bilar
                     //Skicka iväg all information till metoden som ska lägga till bilar
                     System.out.println("Car was registred");
@@ -377,8 +379,7 @@ public class Console {
                     System.err.println("You can only press one of the keys listed above.");
                     pageSwitcher("2");
                 }
-            }
-        }else if(input.equals("3")){
+            }}else if(input.equals("3")){
             System.out.println("Press Enter to return");
             //Hämta all info om alla sparade bilar och skriv ut
             //Hämta all info om alla sparade bilar och skriv ut
