@@ -6,7 +6,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -46,7 +49,7 @@ public class CarRental {
 	          		"(service_stamp_number INT(10) PRIMARY KEY, "+
 					"licence_plate varchar(10) NOT NULL, " +
 	          		"car_service varchar(10) NOT NULL, " +
-					"last_service int(15) NOT NULL, "+
+					"last_service int(25) NOT NULL, "+
 					"problem varchar(100) NOT NULL, " +
 				  	"FOREIGN KEY(licence_plate) REFERENCES " + "CAR" + " (licence_plate) ON DELETE CASCADE)";		
 	        st.executeUpdate(query);
@@ -93,21 +96,36 @@ public class CarRental {
 	
 	public void registerNewCar(Connection con, String licence_plate, String price_car, String car_free, String model, String seats, String brand, String rented, String production_year, String color, String mileage) throws SQLException {
 		try {
-			String query = " INSERT INTO comments.car VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			query = " INSERT INTO comments.car VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-			PreparedStatement preparedStmt = con.prepareStatement(query);
-			preparedStmt.setString(1, licence_plate);
-			preparedStmt.setInt(2, Integer.parseInt(price_car));
-			preparedStmt.setString(3, car_free);
-			preparedStmt.setString(4, model);
-			preparedStmt.setInt(5, Integer.parseInt(seats));
-			preparedStmt.setString(6, brand);
-			preparedStmt.setString(7, rented);
-			preparedStmt.setInt(8, Integer.parseInt(production_year));
-			preparedStmt.setString(9, color);
-			preparedStmt.setInt(10, Integer.parseInt(mileage));
+			pSt = con.prepareStatement(query);
+			pSt.setString(1, licence_plate);
+			pSt.setInt(2, Integer.parseInt(price_car));
+			pSt.setString(3, car_free);
+			pSt.setString(4, model);
+			pSt.setInt(5, Integer.parseInt(seats));
+			pSt.setString(6, brand);
+			pSt.setString(7, rented);
+			pSt.setInt(8, Integer.parseInt(production_year));
+			pSt.setString(9, color);
+			pSt.setInt(10, Integer.parseInt(mileage));
 
-			preparedStmt.executeUpdate();
+			
+			pSt.executeUpdate();
+			
+			Random ran = new Random();
+			int rand = 1 +ran.nextInt(100000);
+
+			pSt= con.prepareStatement("INSERT INTO comments.service VALUES(?,?,?,?,?)");
+			pSt.setInt(1, rand);
+			pSt.setString(2, licence_plate);
+			pSt.setString(3, "no");
+			pSt.setInt(4,  getDate());
+			pSt.setString(5, "check up");
+	
+			pSt.executeUpdate();
+			
+			
 			con.close();	
 
 		} catch (Exception e) {
@@ -116,20 +134,53 @@ public class CarRental {
 		}
 	}
 	
+	public int getDate() {
+		Date date = new Date();
+		LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		int year  = localDate.getYear();
+		int month = localDate.getMonthValue();
+		int day   = localDate.getDayOfMonth();
+		return year + month + day;
+	}
 	
-	// FIX
-	public void updateDamageService(Connection con, String licence) throws SQLException {
-		query = "SELECT* FROM comments.car WHERE licence_plate ='"+ licence+"'";
+	public void updateDamageService(Connection con, String licence, String problem) throws SQLException {
+		query = "SELECT* FROM comments.service WHERE licence_plate ='"+ licence+"'";
 		pSt = con.prepareStatement(query);
 
 		rs = pSt.executeQuery();
 		
-		if(rs.next()) {
-			pSt = con.prepareStatement("UPDATE comments.car SET rented=? WHERE licence_plate ='"+licence+"'");
+		Random ran = new Random();
+		int rand = 1 +ran.nextInt(100000);
+		
+		if(!rs.next()) {
+			pSt= con.prepareStatement("INSERT INTO comments.service VALUES(?,?,?,?,?)");
+			pSt.setInt(1, rand);
+			pSt.setString(2, licence);
+			pSt.setString(3, "yes");
+			pSt.setInt(4,  getDate());
+			pSt.setString(5, problem);
+	
+			pSt.executeUpdate();
+			
+			pSt = con.prepareStatement("UPDATE comments.car SET car_free=? WHERE licence_plate ='"+licence+"'");
+			pSt.setString(1, "no");
+			pSt.executeUpdate();
+
+		}
+		else {
+			pSt= con.prepareStatement("UPDATE comments.service SET car_service=?, last_service =?, problem=? WHERE licence_plate ='"+licence+"'");
+			pSt.setString(1, "yes");
+			pSt.setInt(2, getDate());
+			pSt.setString(3, problem);
+			pSt.executeUpdate(); 	
+			
+			pSt = con.prepareStatement("UPDATE comments.car SET car_free=? WHERE licence_plate ='"+licence+"'");
 			pSt.setString(1, "no");
 			pSt.executeUpdate();
 		}
+		rs.close();
 		pSt.close();
+		
 		
 	}
 	
@@ -324,7 +375,8 @@ public class CarRental {
 		
 	@SuppressWarnings("rawtypes")
 	public List removeList(List list) {
-		 for(Iterator<ArrayList> itr = list.iterator(); itr.hasNext();){            
+		 for(@SuppressWarnings("unchecked")
+		Iterator<ArrayList> itr = list.iterator(); itr.hasNext();){            
 	            ArrayList lists = itr.next();            
 	            if(lists != null){
 	                itr.remove();
