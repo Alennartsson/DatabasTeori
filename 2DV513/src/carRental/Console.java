@@ -20,10 +20,8 @@ public class Console {
     private String carProcutionYear;
     private String carDamage;
     private Connection con;
-    private ResultSet rs;
-    private Statement st;
-    private PreparedStatement pSt;
     private CarRental rental = new CarRental(con);
+    private List<List<String>> result = new ArrayList<>(); 
     
     public Console (Connection con) {
     	this.con = con;
@@ -32,8 +30,6 @@ public class Console {
 
     public void startPage() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
-
-        rental.showAllCars(con);
 
         System.out.println("|=============== Start page ================|");
         System.out.println("| Select a number to get to the             |");
@@ -54,6 +50,7 @@ public class Console {
             System.err.println("You can only press one of the keys listed above, try again.");
             startPage();
         }
+        scanner.close();
     }
 
     @SuppressWarnings("unchecked")
@@ -92,16 +89,28 @@ public class Console {
                     System.err.println("The personal number can only contain digits and \"-\", please try again.");
                     pageSwitcher("1");
                 }
-                System.out.print("Enter the licence number of the car you want to rent: ");
-                carLicenceNumber = scanner.nextLine();
                 
-               List<List<String>> result = new ArrayList<>(); 
+                System.out.println("The available cars are the following: ");
+                result =  rental.carRented(con);
+                
+                if(!result.isEmpty()) {
+                   outputString(result);
+                   rental.removeList(result);
+                }else {
+                	System.err.println("No cars, please try again.");
+                	pageSwitcher("1");
+                }
+               
+                
+              //Fix that it is possible to rent a car that is already rented
+                System.out.print("Enter the licence number of the car you want to rent: ");				
+                
+               carLicenceNumber = scanner.nextLine();
                result =  rental.selectCarByLicence(con, carLicenceNumber);
                
                if(!result.isEmpty()) {
-               for(int i = 0; i < result.size(); i ++) {
-            	   System.out.println(result.get(i).toString());
-               }
+            	  outputString(result);
+            	  rental.removeList(result);
                }else {
             	   System.err.println("No such car, please try again.");
                    pageSwitcher("1");
@@ -111,29 +120,30 @@ public class Console {
                 System.out.print("Enter the end date for your rental period (YYYYMMDD): ");
                 endDate = scanner.nextLine();
                 
-                // Räkna ut hur mycket detta skulle kosta
-
-                System.out.println("This will cost you .... + extra cost for mileage and damage");
+                
+                result = rental.carPrice(con, carLicenceNumber);
+               
+                System.out.println("This will cost you " + result + "  + extra cost for mileage and damage");
                 System.out.println("Are you sure that you want to rent this car? ");
                 
-                for(int i = 0; i < result.size(); i ++) {
-             	   System.out.println(result.get(i).toString());
-                }
+                rental.removeList(result);
+                   
+                result =  rental.selectCarByLicence(con, carLicenceNumber);
+                outputString(result);
+                rental.removeList(result);
                 
-                //Visa något sorts kvitto på bilen och all information om personen
                 System.out.print("Enter Yes/No: ");
                 input = scanner.nextLine();
                 if (input.toLowerCase().equals("yes")) { 
                 	
-                //	rental.updateCustomer(con, carLicenceNumber, name, pNumber, endDate);
-                    System.out.println("You are now renting the car");
-                    result = rental.showCustomerInfo(con, name);
+                rental.updateCustomer(con, carLicenceNumber, name, pNumber, endDate);
+                System.out.println("You are now renting the car \n");
+                result = rental.showCustomerInfo(con, name, pNumber);
+                result =  rental.selectCarByLicence(con, carLicenceNumber);
                     
-                    for(int i = 0; i < result.size(); i ++) {
-                  	   System.out.println(result.get(i).toString());
-                     }
-                    
-
+                outputString(result);
+                rental.removeList(result);
+                  
                     startPage();
                 } else if (input.toLowerCase().equals("no")) { // If input equals no
                     System.out.println("You pressed no.");
@@ -153,14 +163,11 @@ public class Console {
             System.out.println("|===========================================|");
             
             
-            List<List<String>> result = new ArrayList<>(); 
             result =  rental.carRented(con);
             
             if(!result.isEmpty()) {
-            	for(int i = 0; i < result.size(); i ++) {
-         	  
-            		System.out.println(result.get(i).toString());
-            	}
+            	outputString(result);
+            	rental.removeList(result);
             }
             
             scanner.nextLine();
@@ -190,9 +197,11 @@ public class Console {
                     System.err.println("You can only press one of the keys listed above.");
                     pageSwitcher("1");
                 }
-                //Lägg till kod som hämtar info från databasen och skriver ut någon sorts tabell med bilarna som finns lediga av den biltypen som är vald
-                //Lägg till kod som hämtar info från databasen och skriver ut någon sorts tabell med bilarna som finns lediga av den biltypen som är vald
-                //Lägg till kod som hämtar info från databasen och skriver ut någon sorts tabell med bilarna som finns lediga av den biltypen som är vald
+                result = rental.showCarByBrand(con, carBrand);
+                
+                outputString(result);
+                rental.removeList(result);
+                
                 System.out.println("Press 0 to return: ");
                 input = scanner.nextLine();
             }if(input.equals("0")){
@@ -205,10 +214,11 @@ public class Console {
             System.err.println("You can only press one of the keys listed above, try again.");
             pageSwitcher("1");
         }
-
+        scanner.close();
     }
 
-    private void pageTwo() throws IOException, SQLException {
+    @SuppressWarnings("unchecked")
+	private void pageTwo() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("|============== Manage company =============|");
         System.out.println("| Select a number to get to the             |");
@@ -298,11 +308,13 @@ public class Console {
                 System.out.println("Type yes/no");
                 input = scanner.nextLine();
 
-                if (input.toLowerCase().equals("yes")) { // If input equals yes
-                    rental.registerNewCar(con,carLicenceNumber,"200","not free","SuperDuperSuperCar",carSeats,carBrand,"0",carProcutionYear,carColor,mileage);
-                    //rental.showAllCars(con);
-                    //Skicka iväg all information till metoden som ska lägga till bilar
-                    //Skicka iväg all information till metoden som ska lägga till bilar
+                if (input.toLowerCase().equals("yes")) { // If input equals yesW
+                    rental.registerNewCar(con,carLicenceNumber,"200","free","SuperDuperSuperCar",carSeats,carBrand,"no",carProcutionYear,carColor,mileage);
+                    result = rental.showAllCars(con);
+                    
+                    outputString(result);
+                    
+                    
                     System.out.println("Car was registred");
                     pageSwitcher("2");
                 } else if (input.toLowerCase().equals("no")) { // If input equals no
@@ -321,10 +333,23 @@ public class Console {
             System.out.println("| that you want to manage.                  |");
             System.out.println("| 0. Return                                 |");
             System.out.println("|===========================================|");
+            result =rental.showLicencePlates(con);
+            
+            outputString(result);
+            rental.removeList(result);
+           
             carLicenceNumber = scanner.nextLine();
-            //Kalla på en metod som kontrollerar så att detta registeringsnumret finns
-            //Kalla på en metod som kontrollerar så att detta registeringsnumret finns
-            //Kalla på en metod som kontrollerar så att detta registeringsnumret finns
+            
+            rental.selectCarByLicence(con, carLicenceNumber);
+            
+            if(!result.isEmpty()) {
+                outputString(result);
+                rental.removeList(result);
+             }else {
+             	System.err.println("No car with that Licence Plate, please try again.");
+             	pageSwitcher("2");
+             }
+            
             if(!carLicenceNumber.equals("0")){
                 System.out.println("|=============== "+carLicenceNumber+ "================|");
                 System.out.println("| 1. Set available for rental               |");
@@ -336,9 +361,9 @@ public class Console {
                 input = scanner.nextLine();
 
                 if(input.equals("1")){
-                    //Kalla på metoden som sätter bilen till ledig
-                    //Kalla på metoden som sätter bilen till ledig
-                    //Kalla på metoden som sätter bilen till ledig
+                    
+                	rental.updateRented(con, carLicenceNumber);
+                
                     System.out.println("Car status is now (available for renting).");
                     pageSwitcher("2");
                 }else if(input.equals("2")){
@@ -348,21 +373,26 @@ public class Console {
                         System.err.println("Mileage cant be updated to this value");
                         pageSwitcher("2");
                     }
-                    //Kontrollerar ifall det nya milage är högre än det vi läser från databasen
-                    //Kontrollerar ifall det nya milage är högre än det vi läser från databasen
-                    //Kontrollerar ifall det nya milage är högre än det vi läser från databasen
+                   
+                    
+                    if(rental.isNewMilageHigher(con, carLicenceNumber, mileage)){
+                    	rental.updateMileage(con, carLicenceNumber, mileage);
+                    	System.out.println("Mileage was changed.");
+                    }
+                    else {
+                    	 System.err.println("Mileage is lower or same as before");
+                         pageSwitcher("2");
+                    }
 
-                    //Uppdaterar miltalet i databasen
-                    //Uppdaterar miltalet i databasen
-                    //Uppdaterar miltalet i databasen
-
-                    System.out.println("Mileage was changed.");
                     pageSwitcher("2");
                 }else if(input.equals("3")){
+                	 result = rental.selectCarByLicence(con, carLicenceNumber);
+                	 
+                	 outputString(result);
+                	 rental.removeList(result);
+                	
                     System.out.println("Press Enter to return");
-                    //Hämta all information som finns om bilen med detta registreringsnumret
-                    //Hämta all information som finns om bilen med detta registreringsnumret
-                    //Hämta all information som finns om bilen med detta registreringsnumret
+                                        
                     scanner.nextLine();
                     pageSwitcher("2");
                 }else if(input.equals("4")){
@@ -392,7 +422,7 @@ public class Console {
             System.err.println("You can only press one of the keys listed above, try again.");
             pageSwitcher("2");
         }
-
+        scanner.close();
     }
 
     private void pageThree() throws IOException, SQLException {
@@ -420,6 +450,7 @@ public class Console {
             System.err.println("You can only write Yes/No");
             pageSwitcher("3");
         }
+        scanner.close();
     }
 
     private void pageFour() throws IOException, SQLException {
@@ -462,26 +493,33 @@ public class Console {
             System.err.println("You can only type yes or no, try again.");
             pageSwitcher("5");
         }
-
+        scanner.close();
     }
 
     private void pageSwitcher(String s) throws IOException, SQLException {
         switch (s) {
-            case "1": // Add member
+            case "1": 
                 pageOne();
                 break;
-            case "2": // Select member
+            case "2":
                 pageTwo();
                 break;
-            case "3": // Show verbose list
+            case "3":
                 pageThree();
                 break;
-            case "4": // Show compact list
+            case "4": 
                 pageFour();
                 break;
-            case "5": // Load registry
+            case "5":
                 pageFive();
                 break;
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+	private void outputString(List list) {
+    for(int i = 0; i < list.size(); i ++) {
+      	   System.out.println(list.get(i).toString());
+    	}
     }
 }
