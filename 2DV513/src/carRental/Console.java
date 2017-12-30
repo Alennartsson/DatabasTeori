@@ -410,10 +410,13 @@ public class Console {
                     pageSwitcher("2");
                 }
             }}else if(input.equals("3")){
+	    result = rental.showAllCars(con);
+            outputString(result);
+            rental.removeList(result);	
+		
+		
             System.out.println("Press Enter to return");
-            //Hämta all info om alla sparade bilar och skriv ut
-            //Hämta all info om alla sparade bilar och skriv ut
-            //Hämta all info om alla sparade bilar och skriv ut
+            
             scanner.nextLine();
             pageSwitcher("2");
         }else if(input.equals("0")){
