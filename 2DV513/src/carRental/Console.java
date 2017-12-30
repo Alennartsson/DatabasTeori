@@ -207,7 +207,6 @@ public class Console {
             }if(input.equals("0")){
                 pageSwitcher("1");
             }
-
         }else if(input.equals("0")){
             startPage();
         }else{
@@ -311,10 +310,8 @@ public class Console {
                 if (input.toLowerCase().equals("yes")) { // If input equals yesW
                     rental.registerNewCar(con,carLicenceNumber,"200","free","SuperDuperSuperCar",carSeats,carBrand,"no",carProcutionYear,carColor,mileage);
                     result = rental.showAllCars(con);
-                    
+                   
                     outputString(result);
-                    
-                    
                     System.out.println("Car was registred");
                     pageSwitcher("2");
                 } else if (input.toLowerCase().equals("no")) { // If input equals no
@@ -398,11 +395,15 @@ public class Console {
                 }else if(input.equals("4")){
                     System.out.println("Write short information about the damage: ");
                     carDamage = scanner.nextLine();
+                    
+                    rental.updateDamageService(con, carLicenceNumber, carDamage);
+                    
+                    System.out.println("It's updated \n");
+                    System.out.println("Press Enter to return");
 
-                    //Kalla på funktionen som lämnar in bilen på service och uppdatera informationen om skadorna
-                    //Kalla på funktionen som lämnar in bilen på service och uppdatera informationen om skadorna
-                    //Kalla på funktionen som lämnar in bilen på service och uppdatera informationen om skadorna
-
+                    scanner.nextLine();
+                    pageSwitcher("2");
+                   
                 }else if(input.equals("0")){
                     pageSwitcher("2");
                 }else {
@@ -410,13 +411,13 @@ public class Console {
                     pageSwitcher("2");
                 }
             }}else if(input.equals("3")){
-	    result = rental.showAllCars(con);
+            	
+            result = rental.showAllCars(con);
             outputString(result);
             rental.removeList(result);	
-		
-		
+            	
             System.out.println("Press Enter to return");
-            
+              
             scanner.nextLine();
             pageSwitcher("2");
         }else if(input.equals("0")){
@@ -441,10 +442,8 @@ public class Console {
             System.out.println("on mac: /Users/test/Desktop/registry.txt");
             System.out.println("on windows: \\Users\\test\\Desktop\\registry.txt");
             System.out.print(": ");
-            String filepath= scanner.nextLine();
-           //Kalla på metoden som laddar data till databasen
-            //Kalla på metoden som laddar data till databasen
-            //Kalla på metoden som laddar data till databasen
+            //String filepath= scanner.nextLine();
+            //Call a load method that will store the data to a new file
             System.out.println("Database was loaded");
             startPage();
         }else if (input.toLowerCase().equals("no")) {   /*User dint want to load. returning to start*/
@@ -469,10 +468,8 @@ public class Console {
             System.out.println("on mac: /Users/test/Desktop/registry.txt");
             System.out.println("on windows: \\Users\\test\\Desktop\\registry.txt");
             System.out.print(": ");
-            String filepath= scanner.nextLine();
-            //Kalla på metoden som sparar data från databasen
-            //Kalla på metoden som sparar data från databasen
-            //Kalla på metoden som sparar data från databasen
+            //String filepath= scanner.nextLine();
+            //Will call the method that will update the saved file with the new database / dump file
             System.out.println("Database was saved");
             startPage();
         } else if (input.toLowerCase().equals("no")) {   /*User didnt want to save registry. returning to start*/
@@ -481,6 +478,7 @@ public class Console {
             System.err.println("You can only write Yes/No");
             pageSwitcher("6");
         }
+        scanner.close();
     }
 
     private void pageFive() throws IOException, SQLException {
@@ -518,7 +516,7 @@ public class Console {
                 break;
         }
     }
-
+    
     @SuppressWarnings("rawtypes")
 	private void outputString(List list) {
     for(int i = 0; i < list.size(); i ++) {
