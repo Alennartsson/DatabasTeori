@@ -80,7 +80,7 @@ public class Console {
                     System.err.println("The name can't be empty or contain digits, please try again.");
                     pageSwitcher("1");
                 }
-                System.out.print("Enter personal number: ");
+                System.out.print("Enter personal number(8 digits): ");
                 pNumber = scanner.nextLine();
                 String formatPnumber = pNumber.replaceAll("-", "");
                 if (!formatPnumber.matches("\\d+")) {
@@ -99,8 +99,6 @@ public class Console {
                     pageSwitcher("1");
                 }
 
-
-                //Fix that it is possible to rent a car that is already rented
                 System.out.print("Enter the licence number of the car you want to rent: ");
 
                 carLicenceNumber = scanner.nextLine();
