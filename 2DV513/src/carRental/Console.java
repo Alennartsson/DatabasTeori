@@ -21,11 +21,11 @@ public class Console {
     private String carDamage;
     private Connection con;
     private CarRental rental = new CarRental(con);
-    private List<List<String>> result = new ArrayList<>(); 
-    
+    private List<List<String>> result = new ArrayList<>();
+
     public Console (Connection con) {
-    	this.con = con;
-    	this.rental = new CarRental(con);
+        this.con = con;
+        this.rental = new CarRental(con);
     }
 
     public void startPage() throws IOException, SQLException {
@@ -36,15 +36,13 @@ public class Console {
         System.out.println("| corresponding page.                       |");
         System.out.println("| 1. Customer menu                          |");
         System.out.println("| 2. Manage company                         |");
-        System.out.println("| 3. Load database                          |");
-        System.out.println("| 4. Save database                          |");
         System.out.println("| 5. Exit                                   |");
         System.out.println("|===========================================|");
         System.out.print(":");
 
         input = scanner.nextLine();
 
-        if (input.equals("1") || input.equals("2") || input.equals("3") || input.equals("4") || input.equals("5")) {
+        if (input.equals("1") || input.equals("2") || input.equals("5")) {
             pageSwitcher(input);
         } else {
             System.err.println("You can only press one of the keys listed above, try again.");
@@ -54,7 +52,7 @@ public class Console {
     }
 
     @SuppressWarnings("unchecked")
-	private void pageOne() throws IOException, SQLException {
+    private void pageOne() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("|============== Customer menu ==============|");
         System.out.println("| Select a number to get to the             |");
@@ -89,61 +87,61 @@ public class Console {
                     System.err.println("The personal number can only contain digits and \"-\", please try again.");
                     pageSwitcher("1");
                 }
-                
+
                 System.out.println("The available cars are the following: ");
                 result =  rental.carRented(con);
-                
+
                 if(!result.isEmpty()) {
-                   outputString(result);
-                   rental.removeList(result);
+                    outputString(result);
+                    rental.removeList(result);
                 }else {
-                	System.err.println("No cars, please try again.");
-                	pageSwitcher("1");
+                    System.err.println("No cars, please try again.");
+                    pageSwitcher("1");
                 }
-               
-                
-              //Fix that it is possible to rent a car that is already rented
-                System.out.print("Enter the licence number of the car you want to rent: ");				
-                
-               carLicenceNumber = scanner.nextLine();
-               result =  rental.selectCarByLicence(con, carLicenceNumber);
-               
-               if(!result.isEmpty()) {
-            	  outputString(result);
-            	  rental.removeList(result);
-               }else {
-            	   System.err.println("No such car, please try again.");
-                   pageSwitcher("1");
-               }
+
+
+                //Fix that it is possible to rent a car that is already rented
+                System.out.print("Enter the licence number of the car you want to rent: ");
+
+                carLicenceNumber = scanner.nextLine();
+                result =  rental.selectCarByLicence(con, carLicenceNumber);
+
+                if(!result.isEmpty()) {
+                    outputString(result);
+                    rental.removeList(result);
+                }else {
+                    System.err.println("No such car, please try again.");
+                    pageSwitcher("1");
+                }
 
                 System.out.println("For how long do you want to rent the car?");
                 System.out.print("Enter the end date for your rental period (YYYYMMDD): ");
                 endDate = scanner.nextLine();
-                
-                
+
+
                 result = rental.carPrice(con, carLicenceNumber);
-               
+
                 System.out.println("This will cost you " + result + "  + extra cost for mileage and damage");
                 System.out.println("Are you sure that you want to rent this car? ");
-                
+
                 rental.removeList(result);
-                   
+
                 result =  rental.selectCarByLicence(con, carLicenceNumber);
                 outputString(result);
                 rental.removeList(result);
-                
+
                 System.out.print("Enter Yes/No: ");
                 input = scanner.nextLine();
-                if (input.toLowerCase().equals("yes")) { 
-                	
-                rental.updateCustomer(con, carLicenceNumber, name, pNumber, endDate);
-                System.out.println("You are now renting the car \n");
-                result = rental.showCustomerInfo(con, name, pNumber);
-                result =  rental.selectCarByLicence(con, carLicenceNumber);
-                    
-                outputString(result);
-                rental.removeList(result);
-                  
+                if (input.toLowerCase().equals("yes")) {
+
+                    rental.updateCustomer(con, carLicenceNumber, name, pNumber, endDate);
+                    System.out.println("You are now renting the car \n");
+                    result = rental.showCustomerInfo(con, name, pNumber);
+                    result =  rental.selectCarByLicence(con, carLicenceNumber);
+
+                    outputString(result);
+                    rental.removeList(result);
+
                     startPage();
                 } else if (input.toLowerCase().equals("no")) { // If input equals no
                     System.out.println("You pressed no.");
@@ -161,15 +159,15 @@ public class Console {
             System.out.println("| Press Enter to return                     |");
             System.out.println("| 0. Return                                 |");
             System.out.println("|===========================================|");
-            
-            
+
+
             result =  rental.carRented(con);
-            
+
             if(!result.isEmpty()) {
-            	outputString(result);
-            	rental.removeList(result);
+                outputString(result);
+                rental.removeList(result);
             }
-            
+
             scanner.nextLine();
             pageSwitcher("1");
 
@@ -191,17 +189,17 @@ public class Console {
                     carBrand = "BMW";
                 }else if(input.equals("3")){
                     carBrand = "Volvo";
-                }if(input.equals("4")){
+                }else if(input.equals("4")){
                     carBrand = "Ford";
                 }else {
                     System.err.println("You can only press one of the keys listed above.");
                     pageSwitcher("1");
                 }
                 result = rental.showCarByBrand(con, carBrand);
-                
+
                 outputString(result);
                 rental.removeList(result);
-                
+
                 System.out.println("Press 0 to return: ");
                 input = scanner.nextLine();
             }if(input.equals("0")){
@@ -217,7 +215,7 @@ public class Console {
     }
 
     @SuppressWarnings("unchecked")
-	private void pageTwo() throws IOException, SQLException {
+    private void pageTwo() throws IOException, SQLException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("|============== Manage company =============|");
         System.out.println("| Select a number to get to the             |");
@@ -308,10 +306,7 @@ public class Console {
                 input = scanner.nextLine();
 
                 if (input.toLowerCase().equals("yes")) { // If input equals yesW
-                    rental.registerNewCar(con,carLicenceNumber,"200","free","SuperDuperSuperCar",carSeats,carBrand,"no",carProcutionYear,carColor,mileage);
-                    result = rental.showAllCars(con);
-                   
-                    outputString(result);
+                    rental.registerNewCar(con,carLicenceNumber,"200","free","Sedan",carSeats,carBrand,"no",carProcutionYear,carColor,mileage);
                     System.out.println("Car was registred");
                     pageSwitcher("2");
                 } else if (input.toLowerCase().equals("no")) { // If input equals no
@@ -331,22 +326,22 @@ public class Console {
             System.out.println("| 0. Return                                 |");
             System.out.println("|===========================================|");
             result =rental.showLicencePlates(con);
-            
+
             outputString(result);
             rental.removeList(result);
-           
+
             carLicenceNumber = scanner.nextLine();
-            
+
             rental.selectCarByLicence(con, carLicenceNumber);
-            
+
             if(!result.isEmpty()) {
                 outputString(result);
                 rental.removeList(result);
-             }else {
-             	System.err.println("No car with that Licence Plate, please try again.");
-             	pageSwitcher("2");
-             }
-            
+            }else {
+                System.err.println("No car with that Licence Plate, please try again.");
+                pageSwitcher("2");
+            }
+
             if(!carLicenceNumber.equals("0")){
                 System.out.println("|=============== "+carLicenceNumber+ "================|");
                 System.out.println("| 1. Set available for rental               |");
@@ -358,9 +353,9 @@ public class Console {
                 input = scanner.nextLine();
 
                 if(input.equals("1")){
-                    
-                	rental.updateRented(con, carLicenceNumber);
-                
+
+                    rental.updateRented(con, carLicenceNumber);
+
                     System.out.println("Car status is now (available for renting).");
                     pageSwitcher("2");
                 }else if(input.equals("2")){
@@ -370,40 +365,40 @@ public class Console {
                         System.err.println("Mileage cant be updated to this value");
                         pageSwitcher("2");
                     }
-                   
-                    
+
+
                     if(rental.isNewMilageHigher(con, carLicenceNumber, mileage)){
-                    	rental.updateMileage(con, carLicenceNumber, mileage);
-                    	System.out.println("Mileage was changed.");
+                        rental.updateMileage(con, carLicenceNumber, mileage);
+                        System.out.println("Mileage was changed.");
                     }
                     else {
-                    	 System.err.println("Mileage is lower or same as before");
-                         pageSwitcher("2");
+                        System.err.println("Mileage is lower or same as before");
+                        pageSwitcher("2");
                     }
 
                     pageSwitcher("2");
                 }else if(input.equals("3")){
-                	 result = rental.selectCarByLicence(con, carLicenceNumber);
-                	 
-                	 outputString(result);
-                	 rental.removeList(result);
-                	
+                    result = rental.selectCarByLicence(con, carLicenceNumber);
+
+                    outputString(result);
+                    rental.removeList(result);
+
                     System.out.println("Press Enter to return");
-                                        
+
                     scanner.nextLine();
                     pageSwitcher("2");
                 }else if(input.equals("4")){
                     System.out.println("Write short information about the damage: ");
                     carDamage = scanner.nextLine();
-                    
+
                     rental.updateDamageService(con, carLicenceNumber, carDamage);
-                    
+
                     System.out.println("It's updated \n");
                     System.out.println("Press Enter to return");
 
                     scanner.nextLine();
                     pageSwitcher("2");
-                   
+
                 }else if(input.equals("0")){
                     pageSwitcher("2");
                 }else {
@@ -411,13 +406,13 @@ public class Console {
                     pageSwitcher("2");
                 }
             }}else if(input.equals("3")){
-            	
+
             result = rental.showAllCars(con);
             outputString(result);
-            rental.removeList(result);	
-            	
+            rental.removeList(result);
+
             System.out.println("Press Enter to return");
-              
+
             scanner.nextLine();
             pageSwitcher("2");
         }else if(input.equals("0")){
@@ -425,58 +420,6 @@ public class Console {
         }else{
             System.err.println("You can only press one of the keys listed above, try again.");
             pageSwitcher("2");
-        }
-        scanner.close();
-    }
-
-    private void pageThree() throws IOException, SQLException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("|============ Load new registry ============|");
-        System.out.println("| Press YES to load a new registry          |");
-        System.out.println("| Press NO to return                        |");
-        System.out.println("|===========================================|");
-        System.out.println("Load new registry? Unsaved data will be lost! " + " Yes/No");
-        input = scanner.nextLine();
-        if (input.toLowerCase().equals("yes")) {  /*User wants to load registry. Loading and return to start*/
-            System.out.println("Write your filepath and filename");
-            System.out.println("on mac: /Users/test/Desktop/registry.txt");
-            System.out.println("on windows: \\Users\\test\\Desktop\\registry.txt");
-            System.out.print(": ");
-            //String filepath= scanner.nextLine();
-            //Call a load method that will store the data to a new file
-            System.out.println("Database was loaded");
-            startPage();
-        }else if (input.toLowerCase().equals("no")) {   /*User dint want to load. returning to start*/
-            startPage();
-        } else {      /*User typed wrong, yes/no*/
-            System.err.println("You can only write Yes/No");
-            pageSwitcher("3");
-        }
-        scanner.close();
-    }
-
-    private void pageFour() throws IOException, SQLException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("|============ Save new registry ============|");
-        System.out.println("| Press YES to save registry                |");
-        System.out.println("| Press NO to return                        |");
-        System.out.println("|===========================================|");
-        System.out.println("Save registry?" + " Yes/No");
-        input = scanner.nextLine();
-        if (input.toLowerCase().equals("yes")) {  /*User wants to save registry. Saving and returning to start*/
-            System.out.println("Write your filepath and filename");
-            System.out.println("on mac: /Users/test/Desktop/registry.txt");
-            System.out.println("on windows: \\Users\\test\\Desktop\\registry.txt");
-            System.out.print(": ");
-            //String filepath= scanner.nextLine();
-            //Will call the method that will update the saved file with the new database / dump file
-            System.out.println("Database was saved");
-            startPage();
-        } else if (input.toLowerCase().equals("no")) {   /*User didnt want to save registry. returning to start*/
-            startPage();
-        } else {      /*User typed wrong, yes/no*/
-            System.err.println("You can only write Yes/No");
-            pageSwitcher("6");
         }
         scanner.close();
     }
@@ -499,28 +442,22 @@ public class Console {
 
     private void pageSwitcher(String s) throws IOException, SQLException {
         switch (s) {
-            case "1": 
+            case "1":
                 pageOne();
                 break;
             case "2":
                 pageTwo();
-                break;
-            case "3":
-                pageThree();
-                break;
-            case "4": 
-                pageFour();
                 break;
             case "5":
                 pageFive();
                 break;
         }
     }
-    
+
     @SuppressWarnings("rawtypes")
-	private void outputString(List list) {
-    for(int i = 0; i < list.size(); i ++) {
-      	   System.out.println(list.get(i).toString());
-    	}
+    private void outputString(List list) {
+        for(int i = 0; i < list.size(); i ++) {
+            System.out.println(list.get(i).toString());
+        }
     }
 }
