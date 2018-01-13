@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import static javax.print.attribute.standard.MediaSizeName.B;
-
 
 public class CarRental {
     private Connection con;
@@ -60,8 +58,8 @@ public class CarRental {
                     "(id_number_licence INT(25) PRIMARY KEY," +
                     "licence_plate varchar(10) NOT NULL ,"+
                     "customer_name varchar(40) NOT NULL ," +
-                    "customer_personal_number int(10) NOT NULL ," +
-                    "card_number int(50) NOT NULL , " +
+                    "customer_personal_number int(25) NOT NULL ," +
+                    "card_number int(100) NOT NULL , " +
                     "insurance varchar(25) NOT NULL ," +
                     "rent_start_date INT(10) NOT NULL ," +
                     "rent_end_date INT(10) NOT NULL ," +
@@ -272,9 +270,6 @@ public class CarRental {
         rs.close();
         pSt.close();
     }
-
-
-
 
     @SuppressWarnings("rawtypes")
     public List showCustomerInfo(Connection con, String name, String pNumber) throws SQLException {
